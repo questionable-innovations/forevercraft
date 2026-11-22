@@ -22,6 +22,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
+import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.gametest.PrefixGameTestTemplate;
 import nz.questionable.forevercraft.Forevercraft;
@@ -141,7 +142,7 @@ public final class ResetGameTests {
         helper.assertTrue(stash != null, "stash recorded");
         helper.assertTrue(stash.dimension().equals(Level.OVERWORLD.location()), "stash moved to the overworld");
         helper.assertTrue(horizontal(stash.pos(), oldSpawn) <= 8, "stash near the old spawn, was " + stash.pos());
-        assertStashed(helper, server.overworld(), stash.pos(), 1);
+        assertStashed(helper, server.overworld(), stash.pos(), 1, player.getGameProfile().getName());
         assertFreshAtSpawn(helper, player, era);
         helper.succeed();
     }
@@ -182,11 +183,12 @@ public final class ResetGameTests {
         helper.assertTrue(stash != null, "no stash recorded in era " + era.index);
         helper.assertTrue(horizontal(stash.pos(), stand) <= 2 && Math.abs(stash.pos().getY() - stand.getY()) <= 3,
                 "stash at " + stash.pos() + " is not near " + stand);
-        assertStashed(helper, helper.getLevel(), stash.pos(), stacks);
+        assertStashed(helper, helper.getLevel(), stash.pos(), stacks, stash.playerName());
     }
 
     /** Counts item stacks in the chest column starting at {@code bottom}. */
-    private static void assertStashed(GameTestHelper helper, ServerLevel level, BlockPos bottom, int expectedStacks) {
+    private static void assertStashed(GameTestHelper helper, ServerLevel level, BlockPos bottom, int expectedStacks,
+                                      String playerName) {
         int stacks = 0;
         int chests = 0;
         for (BlockPos p = bottom; level.getBlockEntity(p) instanceof ChestBlockEntity chest; p = p.above()) {
@@ -196,6 +198,14 @@ public final class ResetGameTests {
         helper.assertTrue(chests == (expectedStacks + 26) / 27, "expected " + ((expectedStacks + 26) / 27)
                 + " chests at " + bottom + ", found " + chests);
         helper.assertTrue(stacks == expectedStacks, "expected " + expectedStacks + " stacks, found " + stacks);
+        BlockPos top = bottom.above(chests);
+        helper.assertTrue(level.getBlockEntity(top) instanceof SignBlockEntity, "expected a sign on top at " + top);
+        SignBlockEntity sign = (SignBlockEntity) level.getBlockEntity(top);
+        helper.assertTrue(sign.isWaxed(), "sign should be waxed");
+        String signName = sign.getFrontText().getMessage(0, false).getString();
+        helper.assertTrue(signName.equals(playerName), "sign should name " + playerName + ", was " + signName);
+        helper.assertTrue(sign.getFrontText().getMessage(1, false).getString().matches("\\d{1,2} \\w{3} \\d{4}"),
+                "sign should carry the date, was " + sign.getFrontText().getMessage(1, false).getString());
     }
 
     private static void assertFreshAtSpawn(GameTestHelper helper, ServerPlayer player, Era era) {

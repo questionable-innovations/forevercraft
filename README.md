@@ -23,8 +23,8 @@ Install the jar on the server **and** every client (it is in the modpack). Clien
    spots within 20000 of 0,0 so strongholds stay in reach. It prefers land.
 3. For every online player:
    - inventory, armor, offhand, crafting grid, cursor item and ender chest go into single chests stacked where they
-     stand, named `<player>'s belongings (era N)`. The mod looks for free space nearby, avoids lava, and never
-     overwrites another block entity;
+     stand, named `<player>'s belongings (era N)`, with a waxed sign on top giving the player's name, the date and
+     the era. The mod looks for free space nearby, avoids lava, and never overwrites another block entity;
    - levels, effects and respawn point are wiped, and health and hunger are refilled;
    - they are sent to the new spawn.
 4. Players who were offline get the same treatment the next time they join, at the spot where they logged out.

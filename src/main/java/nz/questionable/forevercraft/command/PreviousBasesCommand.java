@@ -1,9 +1,6 @@
 package nz.questionable.forevercraft.command;
 
 import java.text.NumberFormat;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
 import com.mojang.brigadier.CommandDispatcher;
@@ -17,6 +14,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import nz.questionable.forevercraft.config.ForevercraftConfig;
+import nz.questionable.forevercraft.world.Dates;
 import nz.questionable.forevercraft.world.Era;
 import nz.questionable.forevercraft.world.ServerState;
 import nz.questionable.forevercraft.world.Stash;
@@ -24,9 +22,6 @@ import nz.questionable.forevercraft.world.WorldState;
 
 /** Lists earlier eras' spawns in the coordinates the caller currently sees. */
 public final class PreviousBasesCommand {
-    private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("d MMM yyyy", Locale.ROOT)
-            .withZone(ZoneId.systemDefault());
-
     private PreviousBasesCommand() {}
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
@@ -56,7 +51,7 @@ public final class PreviousBasesCommand {
         for (Era era : state.eras) {
             if (era.index == current.index) continue;
             msg.append(Component.literal("\nEra " + era.index).withStyle(ChatFormatting.YELLOW))
-                    .append(Component.literal(" (ended " + DATE.format(Instant.ofEpochMilli(era.endedAt)) + ")")
+                    .append(Component.literal(" (ended " + Dates.day(era.endedAt) + ")")
                             .withStyle(ChatFormatting.GRAY))
                     .append(Component.literal(": spawn at " + view.formatXZ(Level.OVERWORLD.location(), era.spawn)
                             + ", " + num.format(CoordinateView.horizontalDistance(from, era.spawn)) + " blocks "
@@ -65,7 +60,7 @@ public final class PreviousBasesCommand {
             for (Stash stash : era.stashes) {
                 if (!stash.player().equals(player.getUUID())) continue;
                 msg.append(Component.literal("\n   your belongings: " + view.format(stash.dimension(), stash.pos())
-                        + " in " + stash.dimension() + " (" + stash.chests() + " chest"
+                        + " in " + CoordinateView.dimensionName(stash.dimension()) + " (" + stash.chests() + " chest"
                         + (stash.chests() == 1 ? "" : "s") + ")").withStyle(ChatFormatting.GRAY));
             }
         }

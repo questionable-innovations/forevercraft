@@ -19,8 +19,12 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ChestBlock;
+import net.minecraft.world.level.block.StandingSignBlock;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
+import net.minecraft.world.level.block.entity.SignBlockEntity;
+import net.minecraft.world.level.block.entity.SignText;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.RotationSegment;
 import net.minecraft.world.phys.Vec3;
 import nz.questionable.forevercraft.config.ForevercraftConfig.EnderChestMode;
 
@@ -66,10 +70,13 @@ public final class PlayerStasher {
         }
     }
 
-    /** Places as many single chests as needed, stacked vertically, at or near {@code origin}. */
+    /**
+     * Places as many single chests as needed, stacked vertically, at or near {@code origin}, topped with a waxed
+     * sign carrying {@code signLines} when there is room for one.
+     */
     @Nullable
     public static Placed placeStash(ServerLevel level, BlockPos origin, Direction facing, List<ItemStack> items,
-                                    Component name) {
+                                    Component name, Component... signLines) {
         if (items.isEmpty()) return null;
         int chests = Mth.positiveCeilDiv(items.size(), CHEST_SLOTS);
         BlockPos bottom = findSpot(level, origin, chests);
@@ -87,18 +94,40 @@ public final class PlayerStasher {
             }
             be.setChanged();
         }
+        BlockPos top = bottom.above(chests);
+        if (signLines.length > 0 && top.getY() < level.getMaxBuildHeight() && replaceable(level, top)) {
+            placeSign(level, top, facing, signLines);
+        }
         return new Placed(bottom, chests, items.size());
     }
 
-    /** Nearest column of {@code height} free blocks, preferring one with headroom so the top chest opens. */
+    /** Standing sign facing the same way as the chests; waxed so nobody can overwrite it. */
+    private static void placeSign(ServerLevel level, BlockPos pos, Direction facing, Component[] lines) {
+        level.setBlock(pos, Blocks.OAK_SIGN.defaultBlockState()
+                .setValue(StandingSignBlock.ROTATION, RotationSegment.convertToSegment(facing)), 3);
+        if (!(level.getBlockEntity(pos) instanceof SignBlockEntity sign)) return;
+        SignText text = new SignText();
+        for (int i = 0; i < Math.min(lines.length, 4); i++) text = text.setMessage(i, lines[i]);
+        sign.setText(text, true);
+        sign.setText(text, false);
+        sign.setWaxed(true);
+        sign.setChanged();
+    }
+
+    /**
+     * Nearest column of {@code height} free blocks. Prefers room for the sign on top (which also keeps the top
+     * chest openable), then just a non-solid block above, then anything.
+     */
     static BlockPos findSpot(ServerLevel level, BlockPos origin, int height) {
         int minY = level.getMinBuildHeight() + 1;
         int maxY = level.getMaxBuildHeight() - height - 1;
         BlockPos start = new BlockPos(origin.getX(), Mth.clamp(origin.getY(), minY, maxY), origin.getZ());
-        for (boolean headroom : new boolean[] {true, false}) {
+        for (int pass = 0; pass < 3; pass++) {
+            int need = pass == 0 ? height + 1 : height;
+            boolean headroom = pass == 1;
             for (BlockPos p : BlockPos.withinManhattan(start, SEARCH_RADIUS, SEARCH_RADIUS, SEARCH_RADIUS)) {
                 if (p.getY() < minY || p.getY() > maxY) continue;
-                if (fits(level, p, height, headroom)) return p.immutable();
+                if (fits(level, p, need, headroom)) return p.immutable();
             }
         }
         // Everything nearby is solid: overwrite blocks, but never another block entity's contents.

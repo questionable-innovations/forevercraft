@@ -25,6 +25,7 @@ import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.level.storage.LevelResource;
 import nz.questionable.forevercraft.config.ForevercraftConfig;
 import nz.questionable.forevercraft.reset.SpawnPlanner.Point;
+import nz.questionable.forevercraft.world.Dates;
 import nz.questionable.forevercraft.world.Era;
 import nz.questionable.forevercraft.world.PlayerMarks;
 import nz.questionable.forevercraft.world.ServerState;
@@ -95,8 +96,11 @@ public final class WorldResetService {
         List<ItemStack> items = PlayerStasher.takeBelongings(player, ForevercraftConfig.ENDER_CHEST_MODE.get());
         String name = player.getGameProfile().getName();
         Component label = Component.literal(name + "'s belongings (era " + from.index + ")");
+        long endedAt = from.endedAt != 0 ? from.endedAt : System.currentTimeMillis();
         PlayerStasher.Placed placed = PlayerStasher.placeStash(stashLevel, stashPos,
-                player.getDirection().getOpposite(), items, label);
+                player.getDirection().getOpposite(), items, label,
+                Component.literal(name), Component.literal(Dates.day(endedAt)),
+                Component.literal("End of era " + from.index));
         if (placed != null) {
             from.stashes.add(new Stash(player.getUUID(), name, stashLevel.dimension().location(), placed.bottom(),
                     placed.chests(), placed.stacks()));

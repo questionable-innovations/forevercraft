@@ -39,6 +39,15 @@ record CoordinateView(int offsetX, int offsetZ, Set<ResourceLocation> dimensions
         return String.format(Locale.ROOT, "X %d, Z %d", x, z);
     }
 
+    static String dimensionName(ResourceLocation dimension) {
+        return switch (dimension.toString()) {
+            case "minecraft:overworld" -> "the Overworld";
+            case "minecraft:the_nether" -> "the Nether";
+            case "minecraft:the_end" -> "the End";
+            default -> dimension.toString();
+        };
+    }
+
     /** Compass direction from {@code from} to {@code to}; north is -Z. */
     static String direction(BlockPos from, BlockPos to) {
         double angle = Math.toDegrees(Math.atan2(to.getX() - from.getX(), from.getZ() - to.getZ()));

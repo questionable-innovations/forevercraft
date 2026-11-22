@@ -27,3 +27,6 @@ forge*changelog.txt
 # local test servers
 run-server/
 run-data/
+
+# python
+__pycache__/

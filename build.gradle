@@ -92,7 +92,7 @@ tasks.named('jar', Jar).configure {
         ])
     }
     // GameTests run from the dev classpath; keep them out of the shipped jar.
-    exclude 'nz/questionable/forevercraft/gametest/**', 'data/forevercraft/structures/platform.nbt'
+    exclude 'nz/questionable/forevercraft/gametest/**', 'nz/questionable/forevercraft/dev/**', 'data/forevercraft/structures/platform.nbt'
     finalizedBy 'reobfJar'
 }
 

@@ -21,6 +21,14 @@ Install the jar on the server **and** every client (it is in the modpack). Clien
 
 `/previousbases` (ops only by default) lists old spawns in the coordinates players see now.
 
+### Five eras on one world
+
+![Map of a demo world after four resets: five era spawns linked by arrows, each 6,000–10,000 blocks apart, with a close-up of the base and stashes at each](docs/era-map.webp)
+
+A real world after four `/resetworld` runs, with a small base built at each era's spawn and three players' stashes
+left behind in it. The highlighted band is where era 4 could have landed: 6,000–10,000 blocks from era 3 and outside
+every earlier spawn's 6,000-block keep-out.
+
 ## Features
 
 | Feature | What it does |
@@ -103,3 +111,14 @@ Edits are picked up live and pushed to connected clients.
 ```
 
 Requires JDK 17 (Gradle downloads one if needed).
+
+To regenerate the era map, point the dev server at an empty world (`level-name` in `run/server.properties`, and
+`max-tick-time=-1` because the build runs in one long tick), then:
+
+```sh
+FOREVERCRAFT_DEMO_OUT=/tmp/demo ./gradlew runServer   # builds 5 eras with bases, exports, stops
+uv run tools/demo-map/render.py /tmp/demo docs/era-map.png \
+    --jar ~/.gradle/caches/forge_gradle/minecraft_repo/versions/1.20.1/client-extra.jar
+```
+
+The demo code lives in `dev/` and is left out of the release jar.

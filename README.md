@@ -13,7 +13,7 @@ Install the jar on the server **and** every client (it is in the modpack). Clien
 | 1:1 Nether | Nether portals map coordinates 1:1 instead of 1:8. Only the Nether's scale is changed, so modded dimensions keep theirs. |
 | `/resetworld` | Starts a new era after a confirmation step. See below. |
 | Hidden coordinates | F3 shows coordinates relative to the current era's spawn, so spawn reads ~0, 0. Applies to the Overworld and Nether. F3+C and F3+I (which copy true coordinates) are disabled while hidden. |
-| `/previousbases` | Lists earlier eras' spawns in the coordinates players see now, with distance and direction. |
+| `/previousbases` | Ops only by default: lists earlier eras' spawns in current coordinates, with distance and direction. Players are meant to find old remains themselves. |
 | Elytra ban | Elytra flight is disabled by default (the server enforces it; the client shows a tooltip). |
 
 ## What `/resetworld` does
@@ -41,7 +41,7 @@ wiped.
 | --- | --- | --- |
 | `/resetworld` | 4 (configurable) | Preview plus confirmation code |
 | `/resetworld confirm <code>` | 4 (configurable) | Runs the reset |
-| `/previousbases` | 0 (configurable) | Old spawns in current coordinates. Ops (level 2+) also see their own stashes |
+| `/previousbases` | 2 (configurable) | Old spawns in current coordinates, plus your own stashes |
 | `/forevercraft status` | 2 | Era, true spawn, offset, End seed, offline players still to be reset |
 | `/forevercraft stashes` | 2 | Every stash, in true and displayed coordinates |
 | `/forevercraft truecoords` | 2 | Toggles true coordinates on your own F3 screen (command arguments always use true coordinates) |
@@ -60,7 +60,7 @@ wiped.
 | `coordinates.hideTrueCoordinates` | `true` |
 | `coordinates.dimensions` | `["minecraft:overworld", "minecraft:the_nether"]` |
 | `elytra.disabled` | `true` |
-| `previousBases.permissionLevel` | `0` |
+| `previousBases.permissionLevel` | `2` |
 | `previousBases.showOwnStashes` | `false` |
 
 Edits are picked up live and pushed to connected clients.

@@ -71,8 +71,10 @@ public final class ForevercraftConfig {
         b.pop();
 
         b.push("previousBases");
-        PREVIOUS_BASES_PERMISSION_LEVEL = b.comment("Permission level needed for /previousbases (0 = everyone).")
-                .defineInRange("permissionLevel", 0, 0, 4);
+        PREVIOUS_BASES_PERMISSION_LEVEL = b.comment(
+                        "Permission level needed for /previousbases. Ops-only by default so players have to find",
+                        "old remains themselves; 0 lets everyone use it.")
+                .defineInRange("permissionLevel", 2, 0, 4);
         PREVIOUS_BASES_SHOW_OWN_STASHES = b.comment(
                         "Also list the caller's own stash chests. Ops (level 2+) always see them.")
                 .define("showOwnStashes", false);

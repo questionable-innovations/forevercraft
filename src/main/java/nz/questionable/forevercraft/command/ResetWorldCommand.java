@@ -55,8 +55,9 @@ public final class ResetWorldCommand {
                         + ForevercraftConfig.MAX_SPAWN_DISTANCE.get()
                         + " blocks away from every old one; coordinates there read ~0, 0."))
                 .append(line(belongingsLine()))
-                .append(line("Levels, effects and respawn points are wiped. All " + online
-                        + " online player(s) are sent to the new spawn."))
+                .append(line("Levels, effects and respawn points are wiped, and "
+                        + (online == 1 ? "the 1 online player is" : "all " + online + " online players are")
+                        + " sent to the new spawn."))
                 .append(line("Offline players are handled the next time they join."));
         if (ForevercraftConfig.RESET_END.get()) {
             msg.append(line("The End is regenerated (new seed, new dragon) on the next server restart"
@@ -79,6 +80,11 @@ public final class ResetWorldCommand {
             case CLEAR -> "Every player's inventory and armor go into chests stacked where they stand; ender chests are emptied.";
             case KEEP -> "Every player's inventory and armor go into chests stacked where they stand; ender chests are kept.";
         };
+    }
+
+    private static String plural(int n, String noun) {
+        if (n == 1) return "1 " + noun;
+        return n + " " + noun + (noun.endsWith("sh") ? "es" : "s");
     }
 
     private static Component line(String text) {
@@ -106,11 +112,12 @@ public final class ResetWorldCommand {
                 "Era " + era.index + " has begun. Your belongings were left in chests where you stood.")
                 .withStyle(ChatFormatting.GOLD), false);
         src.sendSuccess(() -> Component.literal(String.format(Locale.ROOT,
-                "Era %d started. True spawn %d %d %d (shown as %d, %d). Moved %d player(s), placed %d stash(es); "
-                        + "%d offline player(s) pending.",
+                "Era %d started at true %d %d %d (shown as %d, %d). Moved %s and placed %s; %s will be handled "
+                        + "when they next join.",
                 era.index, era.spawn.getX(), era.spawn.getY(), era.spawn.getZ(),
                 era.spawn.getX() - era.offsetX, era.spawn.getZ() - era.offsetZ,
-                result.playersMoved(), result.stashesPlaced(), result.offlinePending())), true);
+                plural(result.playersMoved(), "player"), plural(result.stashesPlaced(), "stash"),
+                plural(result.offlinePending(), "offline player"))), true);
         return 1;
     }
 }

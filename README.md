@@ -6,6 +6,21 @@ there for players to find once they can make the trip.
 
 Install the jar on the server **and** every client (it is in the modpack). Clients without it cannot join.
 
+## Screenshots
+
+| | |
+| --- | --- |
+| ![The /resetworld preview with its confirmation code](docs/screenshots/01-resetworld-confirm.webp) | ![Arriving at the new era's spawn](docs/screenshots/02-new-era-spawn.webp) |
+| `/resetworld` explains what will happen and asks for a one-time code. | Everyone arrives at the new spawn with nothing. |
+| ![F3 at the new spawn reading 0.5 / 67 / 0.5](docs/screenshots/03-new-era-f3.webp) | ![The old base seen with F3, about 6,000 blocks away](docs/screenshots/05-old-base-f3.webp) |
+| The new spawn reads as 0, 0 on F3... | ...and the old base is now somewhere around X -1326, Z 6209. |
+| ![Stacked chests with a sign: Dev, 22 Nov 2026, End of era 0](docs/screenshots/04-old-base-stash.webp) | ![The stash chest holding the player's old gear](docs/screenshots/06-stash-contents.webp) |
+| What's left behind: the player's belongings, stacked where they stood, with a waxed sign. | Everything they carried, armor and ender chest included. |
+
+![/previousbases listing the era 0 spawn and the caller's stash](docs/screenshots/07-previousbases.webp)
+
+`/previousbases` (ops only by default) lists old spawns in the coordinates players see now.
+
 ## Features
 
 | Feature | What it does |

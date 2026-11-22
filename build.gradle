@@ -91,6 +91,8 @@ tasks.named('jar', Jar).configure {
                 'MixinConfigs'            : "${mod_id}.mixins.json"
         ])
     }
+    // GameTests run from the dev classpath; keep them out of the shipped jar.
+    exclude 'nz/questionable/forevercraft/gametest/**', 'data/forevercraft/structures/platform.nbt'
     finalizedBy 'reobfJar'
 }
 

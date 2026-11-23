@@ -18,6 +18,7 @@ public final class ForevercraftConfig {
     public static final ForgeConfigSpec.IntValue PREFERRED_MAX_RADIUS;
     public static final ForgeConfigSpec.EnumValue<EnderChestMode> ENDER_CHEST_MODE;
     public static final ForgeConfigSpec.BooleanValue RESET_END;
+    public static final ForgeConfigSpec.BooleanValue REGENERATE_END_LIVE;
     public static final ForgeConfigSpec.BooleanValue BLOCK_END_UNTIL_RESTART;
 
     public static final ForgeConfigSpec.BooleanValue HIDE_COORDINATES;
@@ -51,9 +52,15 @@ public final class ForevercraftConfig {
                         "What happens to ender chest contents on reset:",
                         "STASH = moved into the stash chests, CLEAR = deleted, KEEP = left alone.")
                 .defineEnum("enderChest", EnderChestMode.STASH);
-        RESET_END = b.comment("Wipe the End (new seed, new dragon) on the next server start after a reset.")
+        RESET_END = b.comment("Wipe the End (new seed, new dragon) on a reset.")
                 .define("resetEnd", true);
-        BLOCK_END_UNTIL_RESTART = b.comment("Block travel to the End between a reset and the restart that regenerates it.")
+        REGENERATE_END_LIVE = b.comment(
+                        "Swap in the new End as soon as nobody is left in the old one, instead of at the next restart.",
+                        "Turn off if another mod misbehaves when the End is replaced while the server runs.")
+                .define("regenerateEndLive", true);
+        BLOCK_END_UNTIL_RESTART = b.comment(
+                        "When the End waits for a restart (regenerateEndLive off, or the live swap failed),",
+                        "block travel to it until then.")
                 .define("blockEndUntilRestart", true);
         b.pop();
 

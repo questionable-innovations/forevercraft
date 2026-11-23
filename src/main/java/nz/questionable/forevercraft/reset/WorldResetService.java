@@ -26,6 +26,7 @@ import net.minecraft.world.level.storage.LevelResource;
 import nz.questionable.forevercraft.config.ForevercraftConfig;
 import nz.questionable.forevercraft.reset.SpawnPlanner.Point;
 import nz.questionable.forevercraft.world.Dates;
+import nz.questionable.forevercraft.world.EndRegeneration;
 import nz.questionable.forevercraft.world.Era;
 import nz.questionable.forevercraft.world.PlayerMarks;
 import nz.questionable.forevercraft.world.ServerState;
@@ -61,7 +62,10 @@ public final class WorldResetService {
         overworld.setDefaultSpawnPos(spawn, 0.0F);
         LOG.info("Forevercraft: era {} begins at {} (offset {}, {})", next.index, spawn, next.offsetX, next.offsetZ);
 
-        if (ForevercraftConfig.RESET_END.get()) state.pendingEndSeed = new Random().nextLong();
+        if (ForevercraftConfig.RESET_END.get()) {
+            state.pendingEndSeed = new Random().nextLong();
+            if (ForevercraftConfig.REGENERATE_END_LIVE.get()) EndRegeneration.queueLive();
+        }
 
         Set<UUID> offline = knownPlayers(server);
         int moved = 0;

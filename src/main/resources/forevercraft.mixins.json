@@ -6,6 +6,7 @@
   "refmap": "forevercraft.refmap.json",
   "mixins": [
     "DimensionTypeMixin",
+    "MinecraftServerAccessor",
     "PlayerMixin",
     "ServerLevelMixin"
   ],

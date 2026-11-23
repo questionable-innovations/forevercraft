@@ -12,6 +12,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
+import nz.questionable.forevercraft.world.EndRegeneration;
 import nz.questionable.forevercraft.world.Era;
 import nz.questionable.forevercraft.world.PlayerMarks;
 import nz.questionable.forevercraft.world.ServerState;
@@ -38,7 +39,9 @@ public final class ForevercraftCommand {
                 "Era %d. True spawn %s; coordinate offset %d, %d. End seed: %s%s. Offline players awaiting reset: %d.",
                 era.index, era.spawn.toShortString(), era.offsetX, era.offsetZ,
                 state.endSeed == null ? "world seed" : state.endSeed,
-                state.pendingEndSeed == null ? "" : " (regenerates on next restart)",
+                state.pendingEndSeed == null ? ""
+                        : EndRegeneration.liveQueued() ? " (regenerating once the End is empty)"
+                        : " (regenerates on next restart)",
                 state.pendingPlayers.size());
         src.sendSuccess(() -> Component.literal(text), false);
         return era.index;

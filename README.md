@@ -51,9 +51,14 @@ every earlier spawn's 6,000-block keep-out.
    - levels, effects and respawn point are wiped, and health and hunger are refilled;
    - they are sent to the new spawn.
 4. Players who were offline get the same treatment the next time they join, at the spot where they logged out.
-5. The End is queued for regeneration. Travel to the End is blocked until the next server restart. On that
-   restart the old `DIM1` folder is moved to `world/forevercraft/old_ends/`, the dragon fight is reset, and the End
-   generates from a new seed with a new dragon.
+5. The End is replaced while the server keeps running, as soon as nobody is left in it. The reset has just moved
+   everyone out, so that is normally within a second; a player on the death screen there holds it up until they
+   respawn. The old End is saved and closed, its `DIM1` folder is moved to `world/forevercraft/old_ends/`, the
+   dragon fight is reset, and a new End is created from a new seed, with a new dragon. End portals are closed in
+   the meantime.
+
+   With `regenerateEndLive` off, or if the live swap fails, the same happens on the next server restart instead,
+   and End portals stay closed until then (`blockEndUntilRestart`).
 
 Players in the End during a reset get their stash at the previous era's spawn, because the End is about to be
 wiped.
@@ -79,7 +84,7 @@ wiped.
 | `reset.minSpawnDistance` / `maxSpawnDistance` | `6000` / `10000` |
 | `reset.preferredMaxRadius` | `20000` |
 | `reset.enderChest` | `STASH` (`CLEAR`, `KEEP`) |
-| `reset.resetEnd` / `blockEndUntilRestart` | `true` / `true` |
+| `reset.resetEnd` / `regenerateEndLive` / `blockEndUntilRestart` | `true` / `true` / `true` |
 | `coordinates.hideTrueCoordinates` | `true` |
 | `coordinates.dimensions` | `["minecraft:overworld", "minecraft:the_nether"]` |
 | `elytra.disabled` | `true` |
@@ -96,7 +101,10 @@ Edits are picked up live and pushed to connected clients.
 - **Commands use true coordinates.** Ops who type coordinates should use `/forevercraft truecoords` first.
 - **Only vanilla inventories are stashed.** If you add a mod with extra equipment slots (Curios, Accessories),
   those items are not moved yet.
-- **The End regenerates on restart, not immediately.** Single-player counts a world reload as a restart.
+- **The End is swapped while the server runs**, the way a shutdown closes it and startup creates it. This pack's
+  mods (Create included) handle it, but a mod that keeps hold of the old End without listening for Forge's level
+  unload event could misbehave. If one does, turn off `regenerateEndLive` and the End regenerates on the next
+  restart instead (single-player counts a world reload as a restart).
 - **Create trains or contraptions in the old End** are left in the mod's saved data with nothing behind them once
   the End regenerates.
 - **Terrain and dungeon mods are fine.** The mod does not touch Overworld or Nether generation. The End's new seed
@@ -107,7 +115,7 @@ Edits are picked up live and pushed to connected clients.
 ```sh
 ./gradlew build            # build/libs/forevercraft-1.20.1-<version>.jar
 ./gradlew test             # unit tests (F3 rewriting, spawn planning)
-./gradlew runGameTestServer  # in-game tests: online, offline and in-the-End resets
+./gradlew runGameTestServer  # in-game tests: online, offline and in-the-End resets, live End swap
 ```
 
 Requires JDK 17 (Gradle downloads one if needed).

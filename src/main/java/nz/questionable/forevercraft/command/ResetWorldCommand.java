@@ -60,8 +60,11 @@ public final class ResetWorldCommand {
                         + " sent to the new spawn."))
                 .append(line("Offline players are handled the next time they join."));
         if (ForevercraftConfig.RESET_END.get()) {
-            msg.append(line("The End is regenerated (new seed, new dragon) on the next server restart"
-                    + (ForevercraftConfig.BLOCK_END_UNTIL_RESTART.get() ? "; End portals are closed until then." : ".")));
+            msg.append(line(ForevercraftConfig.REGENERATE_END_LIVE.get()
+                    ? "The End is regenerated (new seed, new dragon) right after, once nobody is left in it."
+                    : "The End is regenerated (new seed, new dragon) on the next server restart"
+                            + (ForevercraftConfig.BLOCK_END_UNTIL_RESTART.get()
+                                    ? "; End portals are closed until then." : ".")));
         }
         String command = "/resetworld confirm " + code;
         msg.append(Component.literal("\nThis cannot be undone. ").withStyle(ChatFormatting.RED))

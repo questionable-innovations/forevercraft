@@ -20,6 +20,7 @@ import nz.questionable.forevercraft.command.PreviousBasesCommand;
 import nz.questionable.forevercraft.command.ResetWorldCommand;
 import nz.questionable.forevercraft.config.ForevercraftConfig;
 import nz.questionable.forevercraft.reset.WorldResetService;
+import nz.questionable.forevercraft.world.EndRegeneration;
 import nz.questionable.forevercraft.world.Era;
 import nz.questionable.forevercraft.world.PlayerMarks;
 import nz.questionable.forevercraft.world.ServerState;
@@ -74,10 +75,14 @@ public final class ServerEvents {
     @SubscribeEvent
     public static void onTravel(EntityTravelToDimensionEvent event) {
         if (event.getDimension() != Level.END || !ServerState.isLoaded()) return;
-        if (ServerState.get().pendingEndSeed == null || !ForevercraftConfig.BLOCK_END_UNTIL_RESTART.get()) return;
+        if (ServerState.get().pendingEndSeed == null) return;
+        boolean live = EndRegeneration.liveQueued();
+        if (!live && !ForevercraftConfig.BLOCK_END_UNTIL_RESTART.get()) return;
         event.setCanceled(true);
         if (event.getEntity() instanceof ServerPlayer player) {
-            player.displayClientMessage(Component.literal("The End is reforming. It opens again after the next server restart.")
+            player.displayClientMessage(Component.literal(live
+                    ? "The End is reforming. Try again in a moment."
+                    : "The End is reforming. It opens again after the next server restart.")
                     .withStyle(ChatFormatting.DARK_PURPLE), true);
         }
     }

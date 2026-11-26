@@ -1,9 +1,15 @@
 # Forevercraft
 
-A Forge 1.20.1 mod for a long-running server that "resets" without ever deleting the world. Each reset starts a
-new **era**: spawn moves thousands of blocks away, everyone starts with nothing, and the old bases are still out
-there for players to find once they can make the trip.
+A mod for a long-running server that "resets" without ever deleting the world. Each reset starts a new **era**:
+spawn moves thousands of blocks away, everyone starts with nothing, and the old bases are still out there for players
+to find once they can make the trip.
 
+| Loader | Minecraft | Jar |
+| --- | --- | --- |
+| Forge | 1.20.1 | `forevercraft-forge-1.20.1-<version>.jar` |
+| NeoForge | 1.21.1 | `forevercraft-neoforge-1.21.1-<version>.jar` |
+
+Download from [CurseForge](https://www.curseforge.com/minecraft/mc-mods/forevercraft-server) or the GitHub releases.
 Install the jar on the server **and** every client (it is in the modpack). Clients without it cannot join.
 
 ## Screenshots
@@ -101,32 +107,64 @@ Edits are picked up live and pushed to connected clients.
 - **Commands use true coordinates.** Ops who type coordinates should use `/forevercraft truecoords` first.
 - **Only vanilla inventories are stashed.** If you add a mod with extra equipment slots (Curios, Accessories),
   those items are not moved yet.
-- **The End is swapped while the server runs**, the way a shutdown closes it and startup creates it. This pack's
-  mods (Create included) handle it, but a mod that keeps hold of the old End without listening for Forge's level
-  unload event could misbehave. If one does, turn off `regenerateEndLive` and the End regenerates on the next
-  restart instead (single-player counts a world reload as a restart).
+- **The End is swapped while the server runs**, the way a shutdown closes it and startup creates it. The 1.20.1
+  pack's mods (Create included) handle it, and on 1.21.1 it was tested with Create, Create Aeronautics, Sable,
+  Distant Horizons, Farmer's Delight, Slice and Dice and Simple Voice Chat. A mod that keeps hold of the old End
+  without listening for the loader's level unload event could still misbehave. If one does, turn off
+  `regenerateEndLive` and the End regenerates on the next restart instead (single-player counts a world reload as a
+  restart).
 - **Create trains or contraptions in the old End** are left in the mod's saved data with nothing behind them once
   the End regenerates.
+- **Distant Horizons** adds a "LOD Pos" line to F3 that is worked out from true coordinates; it is removed while
+  coordinates are hidden. DH closes its End database when the old End unloads, and the database moves to `old_ends/`
+  with the rest of `DIM1`. Players whose client already cached LODs of the old End may see them in the new one
+  until Distant Horizons fetches fresh data from the server. DH also crashes the GameTest server (it assumes a
+  dedicated server), so leave it out of `run/mods` when running GameTests.
 - **Terrain and dungeon mods are fine.** The mod does not touch Overworld or Nether generation. The End's new seed
   goes through `ServerLevel#getSeed`, which datapack and most modded End generators use.
 
 ## Building
 
+Each supported loader and Minecraft version is its own Gradle subproject: `forge-1.20.1/` and `neoforge-1.21.1/`.
+Logic with no Minecraft types (spawn planning, F3 rewriting, dates) lives once in `common/` and is compiled into
+each of them, along with its unit tests.
+
 ```sh
-./gradlew build            # build/libs/forevercraft-1.20.1-<version>.jar
-./gradlew test             # unit tests (F3 rewriting, spawn planning)
-./gradlew runGameTestServer  # in-game tests: online, offline and in-the-End resets, live End swap
+./gradlew build                              # every version; jars land in <subproject>/build/libs/
+./gradlew :neoforge-1.21.1:build             # one version
+./gradlew :forge-1.20.1:test                 # unit tests (F3 rewriting, spawn planning)
+./gradlew :neoforge-1.21.1:runGameTestServer # in-game tests: online, offline and in-the-End resets, live End swap
+./gradlew :neoforge-1.21.1:runServer         # dev server; extra mods go in neoforge-1.21.1/run/mods
 ```
 
-Requires JDK 17 (Gradle downloads one if needed).
+Gradle downloads JDK 17 (Forge 1.20.1) and JDK 21 (NeoForge 1.21.1) if they are missing.
 
-To regenerate the era map, point the dev server at an empty world (`level-name` in `run/server.properties`, and
-`max-tick-time=-1` because the build runs in one long tick), then:
+To add a version, copy the closest subproject, set its `gradle.properties` (`loader`, `minecraft_version`,
+`java_version` and the loader version), port the code, and add it to `settings.gradle`. CI and releases pick it up
+from there.
+
+To regenerate the era map (Forge 1.20.1 only), point the dev server at an empty world (`level-name` in
+`forge-1.20.1/run/server.properties`, and `max-tick-time=-1` because the build runs in one long tick), then:
 
 ```sh
-FOREVERCRAFT_DEMO_OUT=/tmp/demo ./gradlew runServer   # builds 5 eras with bases, exports, stops
+FOREVERCRAFT_DEMO_OUT=/tmp/demo ./gradlew :forge-1.20.1:runServer   # builds 5 eras with bases, exports, stops
 uv run tools/demo-map/render.py /tmp/demo docs/era-map.png \
     --jar ~/.gradle/caches/forge_gradle/minecraft_repo/versions/1.20.1/client-extra.jar
 ```
 
-The demo code lives in `dev/` and is left out of the release jar.
+The demo code lives in `forge-1.20.1/src/main/java/.../dev/` and is left out of the release jar.
+
+## Releasing
+
+Every push to `main` and every pull request builds all versions and runs their unit tests and GameTests
+(`.github/workflows/build.yml`).
+
+To release, bump `mod_version` in the root `gradle.properties`, merge, then push a matching tag:
+
+```sh
+git tag v0.2.0 && git push origin v0.2.0      # v0.2.0-beta.1 publishes as a beta
+```
+
+`.github/workflows/release.yml` builds and tests every version again, creates a GitHub release with all jars, and
+uploads each jar to CurseForge with its loader and Minecraft version. The upload needs a `CURSEFORGE_TOKEN` repository
+secret (a CurseForge API token); without it the CurseForge step is skipped with a warning.

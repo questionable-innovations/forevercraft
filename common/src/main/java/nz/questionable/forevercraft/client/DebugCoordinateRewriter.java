@@ -18,6 +18,7 @@ public final class DebugCoordinateRewriter {
     private static final Pattern CHUNK = Pattern.compile(
             "^Chunk: " + INT + " " + INT + " " + INT + " \\[\\d+ \\d+ in r\\.-?\\d+\\.-?\\d+\\.mca]$");
     // Right-hand side lines carry a formatting prefix (underline), so match anywhere.
+    private static final String DH_LOD_POS = "LOD Pos: ";
     private static final Pattern TARGETED = Pattern.compile("(Targeted (?:Block|Fluid): )" + INT + ", " + INT + ", " + INT);
 
     private DebugCoordinateRewriter() {}
@@ -32,6 +33,8 @@ public final class DebugCoordinateRewriter {
     }
 
     public static void rewriteRight(List<String> lines, int offsetX, int offsetZ) {
+        // Distant Horizons' "LOD Pos" is a section position derived from true chunk coordinates.
+        lines.removeIf(line -> line != null && line.startsWith(DH_LOD_POS));
         for (int i = 0; i < lines.size(); i++) {
             String line = lines.get(i);
             if (line == null) continue;

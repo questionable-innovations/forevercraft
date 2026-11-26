@@ -47,6 +47,14 @@ class DebugCoordinateRewriterTest {
     }
 
     @Test
+    void distantHorizonsLodPositionIsDropped() {
+        List<String> right = new ArrayList<>(List.of("Distant Horizons: 3.3.3", "LOD Pos: 6 7*-4",
+                "Rendering API: OpenGL"));
+        DebugCoordinateRewriter.rewriteRight(right, OX, OZ);
+        assertEquals(List.of("Distant Horizons: 3.3.3", "Rendering API: OpenGL"), right);
+    }
+
+    @Test
     void zeroOffsetRoundTrips() {
         String line = "XYZ: -12.301 / 64.00000 / 5.000";
         assertEquals(line, DebugCoordinateRewriter.rewriteLeftLine(line, 0, 0));

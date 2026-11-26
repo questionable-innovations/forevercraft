@@ -1,0 +1,18 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "nz.questionable.forevercraft.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "DimensionTypeMixin",
+    "MinecraftServerAccessor",
+    "PlayerMixin",
+    "ServerLevelMixin"
+  ],
+  "client": [
+    "client.KeyboardHandlerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

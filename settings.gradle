@@ -6,6 +6,10 @@ pluginManagement {
             url = 'https://maven.minecraftforge.net/'
         }
         maven {
+            name = 'NeoForged'
+            url = 'https://maven.neoforged.net/releases'
+        }
+        maven {
             name = 'Sponge'
             url = 'https://repo.spongepowered.org/repository/maven-public/'
         }
@@ -13,7 +17,11 @@ pluginManagement {
 }
 
 plugins {
-    id 'org.gradle.toolchains.foojay-resolver-convention' version '0.7.0'
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '0.8.0'
 }
 
 rootProject.name = 'forevercraft'
+
+// One subproject per supported loader + Minecraft version. Pure-Java logic shared by all of them lives in common/.
+include 'forge-1.20.1'
+include 'neoforge-1.21.1'

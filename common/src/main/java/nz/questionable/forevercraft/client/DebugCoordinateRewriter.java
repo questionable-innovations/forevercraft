@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 
 /**
  * Shifts the coordinate lines of the F3 screen by the era offset. Pure string logic (no Minecraft types)
- * so it can be unit tested; formats match 1.20.1's DebugScreenOverlay.
+ * so it can be unit tested; formats match DebugScreenOverlay in 1.20.1 and 1.21.1.
  */
 public final class DebugCoordinateRewriter {
     private static final String NUM = "(-?\\d+(?:\\.\\d+)?)";
